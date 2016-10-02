@@ -180,6 +180,7 @@ public class CmdPrefixAdmin extends DefaultCommandExecutor implements
 				}
 			PrefixEffect effect = PrefixEffect.createEffect(key, arguments
 					.toString().trim());
+			effect.setTarget(prefix);
 			prefix.getEffects().add(effect);
 			return true;
 		}

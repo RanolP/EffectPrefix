@@ -2,6 +2,7 @@ package me.ranol.effectprefix.effects;
 
 import me.ranol.effectprefix.api.Argument;
 import me.ranol.effectprefix.api.PrefixEffect;
+import me.ranol.effectprefix.api.PrefixManager;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -31,7 +32,9 @@ public class EffXpGet extends PrefixEffect {
 	public void onXpChanged(PlayerExpChangeEvent e) {
 		if (e.getAmount() < 0)
 			return;
+		if (!isSelected(e.getPlayer()))
+			return;
 		e.setAmount((int) (e.getAmount() * (mul / 100)));
+		e.getPlayer().sendMessage("야");
 	}
-
 }

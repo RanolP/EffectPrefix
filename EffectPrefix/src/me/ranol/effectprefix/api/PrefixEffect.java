@@ -8,10 +8,12 @@ import me.ranol.effectprefix.EffectPrefix;
 import me.ranol.effectprefix.effects.EffHoloVisible;
 import me.ranol.effectprefix.effects.EffXpGet;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Listener;
 
 public abstract class PrefixEffect implements Listener {
 	private static List<PrefixEffect> classes = new ArrayList<>();
+	private Prefix target;
 	static {
 		register(EffXpGet.class);
 		register(EffHoloVisible.class);
@@ -44,6 +46,18 @@ public abstract class PrefixEffect implements Listener {
 			}
 		}
 		return null;
+	}
+
+	public void setTarget(Prefix target) {
+		this.target = target;
+	}
+
+	public Prefix getTarget() {
+		return target;
+	}
+
+	public boolean isSelected(OfflinePlayer player) {
+		return PrefixManager.getInstance().isSelected(player, target);
 	}
 
 	public PrefixEffect() {
