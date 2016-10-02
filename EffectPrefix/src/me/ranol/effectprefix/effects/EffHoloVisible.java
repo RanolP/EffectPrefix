@@ -6,7 +6,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 import me.ranol.effectprefix.api.PrefixEffect;
+import me.ranol.effectprefix.api.RequirePlugins;
 
+@RequirePlugins({"HolographicDisplays"})
 public class EffHoloVisible extends PrefixEffect {
 	private static final long serialVersionUID = -1867329429319893668L;
 

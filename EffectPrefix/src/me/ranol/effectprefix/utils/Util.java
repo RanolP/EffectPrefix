@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.md_5.bungee.api.ChatColor;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
 public class Util {
@@ -25,6 +26,12 @@ public class Util {
 	public static void sendWarning(CommandSender s, String message) {
 		s.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c[!] &6"
 				+ message));
+	}
+
+	public static void warning(String message) {
+		Bukkit.getConsoleSender().sendMessage(
+				ChatColor.translateAlternateColorCodes('&', "&c[!] &e"
+						+ message));
 	}
 
 	public static void sendMessageList(CommandSender s, List<String> list,

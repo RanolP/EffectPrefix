@@ -9,7 +9,9 @@ import me.ranol.effectprefix.EffectPrefix;
 import me.ranol.effectprefix.effects.EffAddHealth;
 import me.ranol.effectprefix.effects.EffHoloVisible;
 import me.ranol.effectprefix.effects.EffXpGet;
+import me.ranol.effectprefix.utils.Util;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Listener;
@@ -24,17 +26,49 @@ public abstract class PrefixEffect implements Listener, Serializable {
 		register(EffHoloVisible.class);
 	}
 
+	public abstract Material getMainIcon();
+
 	/**
 	 * @param clazz
 	 *            - 등록할 클래스입니다. 클래스는 PrefixEffect를 상속받아야 하며, 인수를 받지 않는 생성자가
 	 *            존재해야합니다.
 	 */
-
-	public abstract Material getMainIcon();
-
 	public static void register(Class<? extends PrefixEffect> clazz) {
 		try {
-			classes.add(clazz.newInstance());
+			PrefixEffect temp = clazz.newInstance();
+			RequirePlugins req = clazz.getAnnotation(RequirePlugins.class);
+			if (req != null) {
+				for (String s : req.value()) {
+					if (Bukkit.getPluginManager().getPlugin(
+							s.contains("|") ? s.split("|")[0] : s) == null) {
+						Util.warning(clazz.getSimpleName()
+								+ " 활성화 도중 오류를 발견했습니다.");
+						Util.warning("풀 클래스 명: " + clazz.getName() + ".class");
+						Util.warning("커맨드: " + temp.getCommand());
+						Util.warning("오류: 필요 플러그인을 찾지 못함: "
+								+ (s.contains("|") ? s.split("|")[0] + " by "
+										+ s.split("|")[1] : s));
+						return;
+					}
+				}
+			}
+			CompatiblePlugins comp = clazz
+					.getAnnotation(CompatiblePlugins.class);
+			if (comp != null) {
+				for (String s : comp.value()) {
+					if (Bukkit.getPluginManager().getPlugin(
+							s.contains("|") ? s.split("|")[0] : s) != null) {
+						Util.warning("커맨드 "
+								+ temp.getCommand()
+								+ "("
+								+ clazz.getSimpleName()
+								+ ") 은(는) "
+								+ (s.contains("|") ? s.split("|")[0] + " by "
+										+ s.split("|")[1] : s) + "와 호환됩니다!");
+					}
+				}
+			}
+			classes.add(temp);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
