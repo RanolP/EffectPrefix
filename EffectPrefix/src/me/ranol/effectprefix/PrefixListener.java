@@ -3,7 +3,9 @@ package me.ranol.effectprefix;
 import java.util.List;
 
 import me.ranol.effectprefix.api.Prefix;
+import me.ranol.effectprefix.api.PrefixEffect;
 import me.ranol.effectprefix.api.PrefixManager;
+import me.ranol.effectprefix.events.ServerLoadCompleteEvent;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -24,6 +26,11 @@ public class PrefixListener implements Listener {
 			format += pref.getPrefix() + " ";
 		}
 		e.setFormat(format + "§r" + e.getFormat());
+	}
+
+	@EventHandler
+	public void onServerLoaded(ServerLoadCompleteEvent e) {
+		PrefixEffect.registeration();
 	}
 
 	@EventHandler(ignoreCancelled = false, priority = EventPriority.LOWEST)

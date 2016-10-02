@@ -1,7 +1,6 @@
 package me.ranol.effectprefix.effects;
 
 import me.ranol.effectprefix.api.Argument;
-import me.ranol.effectprefix.api.CompatiblePlugins;
 import me.ranol.effectprefix.api.PrefixEffect;
 import me.ranol.effectprefix.events.PrefixDeselectEvent;
 import me.ranol.effectprefix.events.PrefixSelectEvent;
@@ -12,7 +11,6 @@ import org.bukkit.entity.Damageable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.server.PluginDisableEvent;
 
-@CompatiblePlugins({ "HPUtility|milkyway0308" })
 public class EffAddHealth extends PrefixEffect {
 	private static final long serialVersionUID = -8257382118481638877L;
 	@Argument(1)

@@ -1,5 +1,7 @@
 package me.ranol.effectprefix;
 
+import me.ranol.effectprefix.events.ServerLoadCompleteEvent;
+
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -17,6 +19,10 @@ public class EffectPrefix extends JavaPlugin {
 		getCommand("aprefix").setExecutor(admin);
 		getCommand("aprefix").setTabCompleter(admin);
 		registerEvents(new PrefixListener());
+		Bukkit.getScheduler().scheduleSyncDelayedTask(
+				this,
+				() -> Bukkit.getPluginManager().callEvent(
+						new ServerLoadCompleteEvent()), 1L);
 	}
 
 	public static EffectPrefix getInstance() {

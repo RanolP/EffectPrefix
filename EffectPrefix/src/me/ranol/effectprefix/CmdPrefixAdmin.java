@@ -6,7 +6,7 @@ import java.util.List;
 import me.ranol.effectprefix.api.Prefix;
 import me.ranol.effectprefix.api.PrefixEffect;
 import me.ranol.effectprefix.api.PrefixManager;
-import me.ranol.effectprefix.designpatterns.ObserverTarget;
+import me.ranol.effectprefix.designpatterns.ExtendedListObserverTarget;
 import me.ranol.effectprefix.events.PrefixCreateEvent;
 import me.ranol.effectprefix.tabcompletor.DefaultCommandExecutor;
 import me.ranol.effectprefix.tabcompletor.LinkedListCompletions;
@@ -20,11 +20,26 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CmdPrefixAdmin extends DefaultCommandExecutor implements
-		ObserverTarget<List<Prefix>> {
-	private static final long serialVersionUID = 7976125297312206961L;
+public class CmdPrefixAdmin extends DefaultCommandExecutor {
 	List<String> prefixes = new ArrayList<>();
+	List<String> effects = new ArrayList<>();
 	{
+		ExtendedListObserverTarget<String, PrefixEffect> eff = new ExtendedListObserverTarget<>(
+				effects);
+		eff.addWorker((data) -> {
+			List<String> result = new ArrayList<>();
+			data.forEach((a) -> result.add(a.getCommand()));
+			return result;
+		});
+		PrefixEffect.getObserver().attach(eff);
+		ExtendedListObserverTarget<String, Prefix> pref = new ExtendedListObserverTarget<>(
+				prefixes);
+		pref.addWorker((data) -> {
+			List<String> result = new ArrayList<>();
+			data.forEach((a) -> result.add(a.getPrefixName()));
+			return result;
+		});
+		PrefixManager.getInstance().attach(pref);
 		StringCompletions addopt = new StringCompletions("addopt");
 		addCompletion(addopt, 1);
 		addCompletion(new StringCompletions("create"), 1);
@@ -37,11 +52,12 @@ public class CmdPrefixAdmin extends DefaultCommandExecutor implements
 		StringCompletions vname = new StringCompletions("vname");
 		addCompletion(vname, 1);
 		LinkedListCompletions prefix = new LinkedListCompletions(prefixes);
-		addCompletion(prefix.link(addopt), 2);
+		LinkedListCompletions comp;
+		addCompletion(comp = prefix.link(addopt), 2);
 		addCompletion(prefix.link(vname), 2);
 		addCompletion(prefix.link(give), 2);
 		addCompletion(prefix.link(take), 2);
-		PrefixManager.getInstance().attach(this);
+		addCompletion(new LinkedListCompletions(effects).link(comp), 3);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -203,12 +219,6 @@ public class CmdPrefixAdmin extends DefaultCommandExecutor implements
 		Util.sendMessage(s, "&6* /" + l + " take <칭호명> [플레이어] - 칭호를 뺏습니다.");
 		Util.sendMessage(s, "&6* /" + l + " vname <칭호명> <표기> - 칭호의 표기를 정합니다.");
 		Util.sendMessage(s, "&6* /" + l + " help - 도움말을 봅니다.");
-	}
-
-	@Override
-	public void update(List<Prefix> data) {
-		prefixes.clear();
-		data.forEach((a) -> prefixes.add(a.getPrefixName()));
 	}
 
 }
