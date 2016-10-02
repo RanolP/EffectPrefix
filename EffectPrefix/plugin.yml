@@ -1,0 +1,11 @@
+name: EffectPrefix
+version: 1.0
+main: me.ranol.effectprefix.EffectPrefix
+commands:
+    prefix:
+        aliases: [pr, pref]
+        description: 'EffectPrefix User Command.'
+    aprefix:
+        aliases: [apr, apref]
+        description: 'EffectPrefix Admin Command.'
+
