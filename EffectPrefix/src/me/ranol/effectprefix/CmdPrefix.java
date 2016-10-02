@@ -5,6 +5,8 @@ import java.util.List;
 
 import me.ranol.effectprefix.api.Prefix;
 import me.ranol.effectprefix.api.PrefixManager;
+import me.ranol.effectprefix.gui.AbstractUI;
+import me.ranol.effectprefix.gui.UIPrefixUser;
 import me.ranol.effectprefix.tabcompletor.DefaultCommandExecutor;
 import me.ranol.effectprefix.tabcompletor.LinkedListCompletions;
 import me.ranol.effectprefix.tabcompletor.PlayerCompletions;
@@ -18,11 +20,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class CmdPrefix extends DefaultCommandExecutor {
+	UIPrefixUser ui;
 	{
 		StringCompletions user = new StringCompletions("view");
 		addCompletion(user, 1);
 		StringCompletions select = new StringCompletions("select");
 		addCompletion(select, 1);
+		StringCompletions deselect = new StringCompletions("deselect");
+		addCompletion(deselect, 1);
 		StringCompletions info = new StringCompletions("info");
 		addCompletion(info, 1);
 		LinkedListCompletions prefixes = new LinkedListCompletions();
@@ -35,10 +40,13 @@ public class CmdPrefix extends DefaultCommandExecutor {
 			}
 		});
 		addCompletion(prefixes.link(select), 2);
+		addCompletion(prefixes.link(deselect), 2);
 		addCompletion(new StringCompletions("help"), 1);
 		addCompletion(new StringCompletions("list"), 1);
 		addCompletion(new PlayerCompletions(user), 2);
 		addCompletion(prefixes.link(info), 2);
+
+		ui = AbstractUI.getInstance(UIPrefixUser.class);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -49,7 +57,7 @@ public class CmdPrefix extends DefaultCommandExecutor {
 			return false;
 		}
 		if (a.length == 0) {
-			help(s, l);
+			ui.visible((Player) s);
 			return true;
 		} else if (a[0].equalsIgnoreCase("view")) {
 			OfflinePlayer op = (OfflinePlayer) s;
@@ -79,6 +87,8 @@ public class CmdPrefix extends DefaultCommandExecutor {
 			return true;
 		} else if (a[0].equalsIgnoreCase("select")) {
 			return select(s, a);
+		} else if (a[0].equalsIgnoreCase("deselect")) {
+			return deselect(s, a);
 		} else if (a[0].equalsIgnoreCase("help")) {
 			return help(s, l);
 		} else if (a[0].equalsIgnoreCase("list")) {
@@ -118,6 +128,23 @@ public class CmdPrefix extends DefaultCommandExecutor {
 		PrefixManager.getInstance().select(op, prefix);
 		Util.sendMessageWithPrefix(s, "칭호 \'" + prefix.getPrefixName()
 				+ "\'을(를) 선택했습니다.");
+		return true;
+	}
+
+	private boolean deselect(CommandSender s, String[] a) {
+		OfflinePlayer op = (OfflinePlayer) s;
+		if (a.length == 1) {
+			Util.sendWarning(s, "칭호의 이름을 입력해주세요.");
+			return false;
+		}
+		Prefix prefix = PrefixManager.getInstance().get(a[1]);
+		if (!PrefixManager.getInstance().isSelected(op, prefix)) {
+			Util.sendWarning(s, "선택되지 않은 칭호입니다.");
+			return false;
+		}
+		PrefixManager.getInstance().deselect(op, prefix);
+		Util.sendMessageWithPrefix(s, "칭호 \'" + prefix.getPrefixName()
+				+ "\'을(를) 선택 해제 했습니다.");
 		return true;
 	}
 
@@ -162,6 +189,7 @@ public class CmdPrefix extends DefaultCommandExecutor {
 		Util.sendMessage(s, "&6* /" + l
 				+ " view [플레이어] [페이지] - 자신이 적용한 칭호를 봅니다.");
 		Util.sendMessage(s, "&6* /" + l + " select <칭호> [슬롯] - 칭호를 선택합니다.");
+		Util.sendMessage(s, "&6* /" + l + " deselect <칭호> [슬롯] - 칭호를 선택 해제합니다.");
 		Util.sendMessage(s, "&6* /" + l + " list - 자신이 가진 칭호들을 봅니다.");
 		Util.sendMessage(s, "&6* /" + l + " help - 도움말을 봅니다.");
 		Util.sendMessage(s, "&6* /" + l + " info <칭호> - 칭호의 정보를 봅니다.");

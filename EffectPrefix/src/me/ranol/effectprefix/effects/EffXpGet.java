@@ -2,16 +2,16 @@ package me.ranol.effectprefix.effects;
 
 import me.ranol.effectprefix.api.Argument;
 import me.ranol.effectprefix.api.PrefixEffect;
-import me.ranol.effectprefix.api.PrefixManager;
 
+import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 
 public class EffXpGet extends PrefixEffect {
-
+	private static final long serialVersionUID = 4994628596228856156L;
 	@Argument(1)
-	double mul;
+	double mul = 0;
 
 	@Override
 	public void initialize() {
@@ -36,5 +36,10 @@ public class EffXpGet extends PrefixEffect {
 			return;
 		e.setAmount((int) (e.getAmount() * (mul / 100)));
 		e.getPlayer().sendMessage("야");
+	}
+
+	@Override
+	public Material getMainIcon() {
+		return Material.EXP_BOTTLE;
 	}
 }

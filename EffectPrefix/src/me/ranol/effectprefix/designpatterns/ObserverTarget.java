@@ -1,5 +1,7 @@
 package me.ranol.effectprefix.designpatterns;
 
-public interface ObserverTarget<T> {
+import java.io.Serializable;
+
+public interface ObserverTarget<T> extends Serializable{
 	public abstract void update(T data);
 }

@@ -1,5 +1,6 @@
 package me.ranol.effectprefix.api;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -7,14 +8,18 @@ import java.util.List;
 import java.util.UUID;
 
 import me.ranol.effectprefix.designpatterns.Observer;
+import me.ranol.effectprefix.events.PrefixDeselectEvent;
 import me.ranol.effectprefix.events.PrefixGiveEvent;
+import me.ranol.effectprefix.events.PrefixSelectEvent;
 import me.ranol.effectprefix.events.PrefixTakeEvent;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-public class PrefixManager extends Observer<List<Prefix>> {
+public class PrefixManager extends Observer<List<Prefix>> implements
+		Serializable {
+	private static final long serialVersionUID = 6740473927523193132L;
 	private List<Prefix> prefix = new ArrayList<>();
 	private HashMap<UUID, List<Prefix>> selected = new HashMap<>();
 	private HashMap<UUID, List<Prefix>> has = new HashMap<>();
@@ -124,14 +129,27 @@ public class PrefixManager extends Observer<List<Prefix>> {
 			return false;
 		if (isSelected(player, prefix))
 			return false;
-		selected.get(player.getUniqueId()).add(prefix);
+		if (player instanceof Player) {
+			PrefixSelectEvent e = new PrefixSelectEvent((Player) player, prefix);
+			Bukkit.getPluginManager().callEvent(e);
+			if (!e.isCancelled())
+				selected.get(player.getUniqueId()).add(prefix);
+		} else
+			selected.get(player.getUniqueId()).add(prefix);
 		return true;
 	}
 
 	public boolean deselect(OfflinePlayer player, Prefix prefix) {
 		if (!isSelected(player, prefix))
 			return false;
-		selected.get(player.getUniqueId()).remove(prefix);
+		if (player instanceof Player) {
+			PrefixDeselectEvent e = new PrefixDeselectEvent((Player) player,
+					prefix);
+			Bukkit.getPluginManager().callEvent(e);
+			if (!e.isCancelled())
+				selected.get(player.getUniqueId()).remove(prefix);
+		} else
+			selected.get(player.getUniqueId()).remove(prefix);
 		return true;
 	}
 

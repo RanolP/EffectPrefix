@@ -22,6 +22,7 @@ import org.bukkit.entity.Player;
 
 public class CmdPrefixAdmin extends DefaultCommandExecutor implements
 		ObserverTarget<List<Prefix>> {
+	private static final long serialVersionUID = 7976125297312206961L;
 	List<String> prefixes = new ArrayList<>();
 	{
 		StringCompletions addopt = new StringCompletions("addopt");
@@ -180,6 +181,10 @@ public class CmdPrefixAdmin extends DefaultCommandExecutor implements
 				}
 			PrefixEffect effect = PrefixEffect.createEffect(key, arguments
 					.toString().trim());
+			if (effect == null) {
+				Util.sendWarning(s, a[2] + "(이)라는 옵션은 없습니다!");
+				return false;
+			}
 			effect.setTarget(prefix);
 			prefix.getEffects().add(effect);
 			return true;
@@ -204,7 +209,6 @@ public class CmdPrefixAdmin extends DefaultCommandExecutor implements
 	public void update(List<Prefix> data) {
 		prefixes.clear();
 		data.forEach((a) -> prefixes.add(a.getPrefixName()));
-		System.out.println(prefixes.size());
 	}
 
 }

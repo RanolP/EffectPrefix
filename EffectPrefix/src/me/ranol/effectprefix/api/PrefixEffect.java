@@ -1,21 +1,26 @@
 package me.ranol.effectprefix.api;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
 import me.ranol.effectprefix.EffectPrefix;
+import me.ranol.effectprefix.effects.EffAddHealth;
 import me.ranol.effectprefix.effects.EffHoloVisible;
 import me.ranol.effectprefix.effects.EffXpGet;
 
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Listener;
 
-public abstract class PrefixEffect implements Listener {
+public abstract class PrefixEffect implements Listener, Serializable {
+	private static final long serialVersionUID = -741790439302165315L;
 	private static List<PrefixEffect> classes = new ArrayList<>();
 	private Prefix target;
 	static {
 		register(EffXpGet.class);
+		register(EffAddHealth.class);
 		register(EffHoloVisible.class);
 	}
 
@@ -24,7 +29,10 @@ public abstract class PrefixEffect implements Listener {
 	 *            - 등록할 클래스입니다. 클래스는 PrefixEffect를 상속받아야 하며, 인수를 받지 않는 생성자가
 	 *            존재해야합니다.
 	 */
-	public static <T extends PrefixEffect> void register(Class<T> clazz) {
+
+	public abstract Material getMainIcon();
+
+	public static void register(Class<? extends PrefixEffect> clazz) {
 		try {
 			classes.add(clazz.newInstance());
 		} catch (Exception e) {
@@ -130,7 +138,8 @@ public abstract class PrefixEffect implements Listener {
 				field.setAccessible(true);
 				field.set(result, values.get(arg.value() - 1));
 			}
-			result.initialize();
+			if (result != null)
+				result.initialize();
 			return result;
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -29,7 +29,7 @@ public abstract class DefaultPlayerEvent extends PlayerEvent implements
 		return handlers;
 	}
 
-	public HandlerList getHandlerList() {
+	public static HandlerList getHandlerList() {
 		return handlers;
 	}
 

@@ -1,9 +1,11 @@
 package me.ranol.effectprefix.api;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Prefix {
+public class Prefix implements Serializable {
+	private static final long serialVersionUID = -538246772988031160L;
 	private List<PrefixEffect> effects = new ArrayList<>();
 	private String prefixName;
 	private String prefix;

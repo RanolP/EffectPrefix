@@ -7,6 +7,7 @@ public class PrefixCreateEvent extends DefaultEvent {
 	private Prefix prefix;
 
 	public PrefixCreateEvent(Prefix prefix) {
+		this.prefix = prefix;
 	}
 
 	public Prefix getPrefix() {
