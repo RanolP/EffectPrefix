@@ -3,24 +3,24 @@ package me.ranol.effectprefix;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.ranol.effectprefix.api.PrefixEffect;
+import me.ranol.effectprefix.api.effects.EffectManager;
 import me.ranol.effectprefix.effects.EffXpGet;
 import me.ranol.effectprefix.tabcompletor.StringCompletions;
 
-public class TestClass {
+public class TestClass { 
 	public static void main(String[] args) throws Exception {
 		parseTest();
-	}
+	} 
 
 	protected static void parseTest() {
 		String parse = "'String type 1' string_type_2 1234 123.4 true";
-		int count = 10000;
+		int count = 10000; 
 		System.out.println("##정규식##");
 		System.out.println("실험 메시지: " + parse);
 		long start = System.currentTimeMillis();
 		System.err.println("====" + count + "번 반복 시작====");
 		for (int i = 0; i < count; i++) {
-			PrefixEffect.parseVars(parse);
+			EffectManager.parseVars(parse);
 		}
 		System.err.println("====" + count + "번 반복 종료====");
 		System.out.println();
@@ -50,7 +50,7 @@ public class TestClass {
 			list.clear();
 			list.add(j);
 			j += 0.1;
-			messages.add(PrefixEffect.replaceVars(EffXpGet.class, list)
+			messages.add(EffectManager.replaceVars(EffXpGet.class, list)
 					.getDescription());
 		}
 		System.err.println("====" + loopCount + "번 반복 종료====");

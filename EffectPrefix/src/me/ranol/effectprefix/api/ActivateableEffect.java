@@ -1,5 +1,7 @@
 package me.ranol.effectprefix.api;
 
+import me.ranol.effectprefix.api.effects.PrefixEffect;
+
 import org.bukkit.event.block.Action;
 
 public abstract class ActivateableEffect extends PrefixEffect {

@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.ranol.effectprefix.api.Prefix;
-import me.ranol.effectprefix.api.PrefixEffect;
 import me.ranol.effectprefix.api.PrefixManager;
+import me.ranol.effectprefix.api.effects.EffectManager;
+import me.ranol.effectprefix.api.effects.PrefixEffect;
 import me.ranol.effectprefix.designpatterns.ExtendedListObserverTarget;
 import me.ranol.effectprefix.events.PrefixCreateEvent;
 import me.ranol.effectprefix.tabcompletor.DefaultCommandExecutor;
@@ -31,7 +32,7 @@ public class CmdPrefixAdmin extends DefaultCommandExecutor {
 			data.forEach((a) -> result.add(a.getCommand()));
 			return result;
 		});
-		PrefixEffect.getObserver().attach(eff);
+		EffectManager.getInstance().attach(eff);
 		ExtendedListObserverTarget<String, Prefix> pref = new ExtendedListObserverTarget<>(
 				prefixes);
 		pref.addWorker((data) -> {
@@ -60,7 +61,6 @@ public class CmdPrefixAdmin extends DefaultCommandExecutor {
 		addCompletion(new LinkedListCompletions(effects).link(comp), 3);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public boolean onCommand(CommandSender s, Command c, String l, String[] a) {
 		if (a.length == 0) {

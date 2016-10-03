@@ -1,7 +1,7 @@
 package me.ranol.effectprefix.effects;
 
 import me.ranol.effectprefix.api.Argument;
-import me.ranol.effectprefix.api.PrefixEffect;
+import me.ranol.effectprefix.api.effects.PrefixEffect;
 
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;

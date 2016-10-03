@@ -1,4 +1,4 @@
-package me.ranol.effectprefix.api;
+package me.ranol.effectprefix.api.effects;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = ElementType.TYPE)
-public @interface RequirePlugins {
+public @interface CompatiblePlugins {
 	public String[] value();
 }

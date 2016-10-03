@@ -49,7 +49,6 @@ public class CmdPrefix extends DefaultCommandExecutor {
 		ui = AbstractUI.getInstance(UIPrefixUser.class);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public boolean onCommand(CommandSender s, Command c, String l, String[] a) {
 		if (!(s instanceof Player)) {

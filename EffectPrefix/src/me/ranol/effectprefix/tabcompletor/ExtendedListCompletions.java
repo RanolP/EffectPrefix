@@ -45,7 +45,7 @@ public class ExtendedListCompletions extends Completions {
 		if (getParents() == null
 				|| getParents().complete(args, index - 1, completor).size() > 0) {
 			for (String s : completions) {
-				if (s.startsWith(args[index - 1])) {
+				if (s.toLowerCase().startsWith(args[index - 1].toLowerCase())) {
 					result.add(s);
 				}
 			}

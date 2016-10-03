@@ -25,7 +25,7 @@ public class StringCompletions extends Completions {
 
 	public boolean completeFully(String[] args, int argument,
 			CommandSender completor) {
-		if (complete.equals(args[argument - 1])) {
+		if (complete.equalsIgnoreCase(args[argument - 1])) {
 			if (getParents() == null)
 				return true;
 			if (getParents().complete(args, argument - 1, completor).size() > 0)
@@ -37,7 +37,7 @@ public class StringCompletions extends Completions {
 
 	public Collection<String> complete(String[] args, int argument,
 			CommandSender completor) {
-		if (complete.startsWith(args[argument - 1])) {
+		if (complete.toLowerCase().startsWith(args[argument - 1].toLowerCase())) {
 			if (getParents() == null)
 				return new ArrayList<>(Arrays.asList(complete));
 			if (getParents().complete(args, argument - 1, completor).size() > 0)
