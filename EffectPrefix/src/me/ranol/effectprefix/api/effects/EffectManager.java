@@ -129,7 +129,7 @@ public class EffectManager extends Observer<List<PrefixEffect>> {
 			}
 			String[] parse = parse(s);
 			if (EffectPrefix.config()
-					.getStringList(clazz.getSimpleName() + ".uncheckedPlugins")
+					.getStringList(clazz.getSimpleName() + ".uncheckPlugins")
 					.contains(parse[0]))
 				continue;
 			if (Bukkit.getPluginManager().getPlugin(parse[0]) == null) {
@@ -155,21 +155,17 @@ public class EffectManager extends Observer<List<PrefixEffect>> {
 	}
 
 	private static String[] parse(String s) {
-		if (!s.contains("|"))
+		if (!s.contains("|")) {
 			return new String[] { s, "", "" };
-		else if (s.split("|").length > 2)
+		} else if (s.split("\\|").length > 3) {
 			return s.split("\\|");
-		else
+		} else {
 			return new String[] { s.split("\\|")[0], s.split("\\|")[1], "" };
+		}
 	}
 
 	private static String parsePluginWithAuthor(String[] a) {
 		return a[1].isEmpty() ? a[0] : a[0] + " by " + a[1];
-	}
-
-	@FunctionalInterface
-	private interface Worker {
-		public void work(boolean founded, String[] parse, PrefixEffect target);
 	}
 
 	public static Collection<String> getEffects() {
