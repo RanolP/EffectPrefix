@@ -116,4 +116,13 @@ public class ItemUtil {
 		m.setLore(lores);
 		stack.setItemMeta(m);
 	}
+
+	public static void clearLore(ItemStack stack) {
+		if (!stack.hasItemMeta())
+			return;
+		List<String> lores = new ArrayList<>();
+		ItemMeta m = stack.getItemMeta();
+		m.setLore(lores);
+		stack.setItemMeta(m);
+	}
 }

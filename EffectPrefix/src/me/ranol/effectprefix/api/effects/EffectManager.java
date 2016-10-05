@@ -100,9 +100,8 @@ public class EffectManager extends Observer<List<PrefixEffect>> {
 		for (String s : comp.value()) {
 			String[] parse = parse(s);
 			if (Bukkit.getPluginManager().getPlugin(parse[0]) != null) {
-				Util.warning("커맨드 " + effect.toString() + " 은(는) " + parse[0]
-						+ (parse[1].isEmpty() ? parse[1] : "by " + parse[1])
-						+ "와 호환됩니다!");
+				Util.warning("커맨드 " + effect.toString() + " 은(는) "
+						+ parsePluginWithAuthor(parse) + "와 호환됩니다!");
 				if (!parse[2].isEmpty())
 					Util.warning("#Comment: " + parse[2]);
 			}

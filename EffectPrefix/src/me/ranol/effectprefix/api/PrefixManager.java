@@ -8,10 +8,8 @@ import java.util.List;
 import java.util.UUID;
 
 import me.ranol.effectprefix.designpatterns.Observer;
-import me.ranol.effectprefix.events.PrefixDeselectEvent;
-import me.ranol.effectprefix.events.PrefixGiveEvent;
-import me.ranol.effectprefix.events.PrefixSelectEvent;
-import me.ranol.effectprefix.events.PrefixTakeEvent;
+import me.ranol.effectprefix.events.PrefixChangeEvent;
+import me.ranol.effectprefix.events.PrefixChangeEvent.ChangeType;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -23,9 +21,20 @@ public class PrefixManager extends Observer<List<Prefix>> implements
 	private List<Prefix> prefix = new ArrayList<>();
 	private HashMap<UUID, List<Prefix>> selected = new HashMap<>();
 	private HashMap<UUID, List<Prefix>> has = new HashMap<>();
+	private HashMap<UUID, Integer> canSelect = new HashMap<>();
 	private static PrefixManager Instance;
 
 	private PrefixManager() {
+	}
+
+	public int getCanSelectPrefixCount(OfflinePlayer player) {
+		if (!canSelect.containsKey(player.getUniqueId()))
+			canSelect.put(player.getUniqueId(), 3);
+		return canSelect.get(player.getUniqueId());
+	}
+
+	public void setCanSelectPrefixCount(Player player, int count) {
+		canSelect.put(player.getUniqueId(), 3);
 	}
 
 	public static PrefixManager getInstance() {
@@ -61,10 +70,12 @@ public class PrefixManager extends Observer<List<Prefix>> implements
 		return new ArrayList<>(prefix);
 	}
 
-	public Collection<Prefix> getSelectedPrefix(OfflinePlayer player) {
+	@SuppressWarnings("unchecked")
+	public <T extends Collection<Prefix>> T getSelectedPrefix(
+			OfflinePlayer player) {
 		if (!selected.containsKey(player.getUniqueId()))
 			selected.put(player.getUniqueId(), new ArrayList<Prefix>());
-		return new ArrayList<Prefix>(selected.get(player.getUniqueId()));
+		return (T) new ArrayList<Prefix>(selected.get(player.getUniqueId()));
 	}
 
 	public Collection<Prefix> getHasPrefix(OfflinePlayer player) {
@@ -89,12 +100,15 @@ public class PrefixManager extends Observer<List<Prefix>> implements
 		if (!has.containsKey(player.getUniqueId()))
 			has.put(player.getUniqueId(), new ArrayList<Prefix>());
 		if (player instanceof Player) {
-			PrefixGiveEvent event = new PrefixGiveEvent((Player) player, prefix);
+			PrefixChangeEvent event = new PrefixChangeEvent((Player) player,
+					prefix, ChangeType.GIVE);
 			Bukkit.getPluginManager().callEvent(event);
 			if (!event.isCancelled()) {
-				has.get(player.getUniqueId()).add(event.getGivePrefix());
-
+				has.get(player.getUniqueId()).add(event.getChangedPrefix());
 			}
+			PrefixChangeEvent event2 = new PrefixChangeEvent((Player) player,
+					prefix, ChangeType.GIVED);
+			Bukkit.getPluginManager().callEvent(event2);
 		} else {
 			has.get(player.getUniqueId()).add(prefix);
 		}
@@ -107,14 +121,18 @@ public class PrefixManager extends Observer<List<Prefix>> implements
 		if (!has.containsKey(player.getUniqueId()))
 			has.put(player.getUniqueId(), new ArrayList<Prefix>());
 		if (player instanceof Player) {
-			PrefixTakeEvent event = new PrefixTakeEvent((Player) player, prefix);
+			PrefixChangeEvent event = new PrefixChangeEvent((Player) player,
+					prefix, ChangeType.TAKE);
 			Bukkit.getPluginManager().callEvent(event);
 			if (!event.isCancelled()) {
-				has.get(player.getUniqueId()).remove(event.getTakePrefix());
-				if (isSelected(player, event.getTakePrefix())) {
-					deselect(player, event.getTakePrefix());
+				has.get(player.getUniqueId()).remove(event.getChangedPrefix());
+				if (isSelected(player, event.getChangedPrefix())) {
+					deselect(player, event.getChangedPrefix());
 				}
 			}
+			PrefixChangeEvent event2 = new PrefixChangeEvent((Player) player,
+					prefix, ChangeType.TAKED);
+			Bukkit.getPluginManager().callEvent(event2);
 		} else {
 			has.get(player.getUniqueId()).remove(prefix);
 			if (isSelected(player, prefix)) {
@@ -129,13 +147,38 @@ public class PrefixManager extends Observer<List<Prefix>> implements
 			return false;
 		if (isSelected(player, prefix))
 			return false;
+		if (getCanSelectPrefixCount(player) <= getSelectedPrefix(player).size())
+			return false;
 		if (player instanceof Player) {
-			PrefixSelectEvent e = new PrefixSelectEvent((Player) player, prefix);
+			PrefixChangeEvent e = new PrefixChangeEvent((Player) player,
+					prefix, ChangeType.SELECT);
 			Bukkit.getPluginManager().callEvent(e);
 			if (!e.isCancelled())
 				selected.get(player.getUniqueId()).add(prefix);
+			else
+				return false;
 		} else
 			selected.get(player.getUniqueId()).add(prefix);
+		return true;
+	}
+
+	public boolean select(OfflinePlayer player, Prefix prefix, int index) {
+		if (!hasPrefix(player, prefix))
+			return false;
+		if (isSelected(player, prefix))
+			return false;
+		if (getCanSelectPrefixCount(player) <= getSelectedPrefix(player).size())
+			return false;
+		if (player instanceof Player) {
+			PrefixChangeEvent e = new PrefixChangeEvent((Player) player,
+					prefix, ChangeType.SELECT);
+			Bukkit.getPluginManager().callEvent(e);
+			if (!e.isCancelled())
+				selected.get(player.getUniqueId()).add(index, prefix);
+			else
+				return false;
+		} else
+			selected.get(player.getUniqueId()).add(index, prefix);
 		return true;
 	}
 
@@ -143,8 +186,8 @@ public class PrefixManager extends Observer<List<Prefix>> implements
 		if (!isSelected(player, prefix))
 			return false;
 		if (player instanceof Player) {
-			PrefixDeselectEvent e = new PrefixDeselectEvent((Player) player,
-					prefix);
+			PrefixChangeEvent e = new PrefixChangeEvent((Player) player,
+					prefix, ChangeType.DESELECT);
 			Bukkit.getPluginManager().callEvent(e);
 			if (!e.isCancelled())
 				selected.get(player.getUniqueId()).remove(prefix);

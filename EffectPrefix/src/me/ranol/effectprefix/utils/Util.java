@@ -7,14 +7,25 @@ import java.util.List;
 import net.md_5.bungee.api.ChatColor;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Util {
 	private static String pref = "&8[&aEffectPrefix&8] &a";
+	public static final char CHECK_MARK = '✓';
+	public static final char X_MARK = '✗';
+	public static final char BOX_WITH_X_MARK = '☒';
+	public static final char BOX_WITH_CHECK_MARK = '☑';
+	public static final char DELETE_MARK = '⌫';
 
 	public static String getMessagePrefix() {
 		return pref;
+	}
+
+	public static void playSound(Player player, Sound sound) {
+		player.playSound(player.getLocation(), sound, 1.0f, 1.0f);
 	}
 
 	public static void sendMessageWithPrefix(CommandSender s, String message) {

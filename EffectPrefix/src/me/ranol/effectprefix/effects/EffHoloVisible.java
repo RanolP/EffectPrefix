@@ -12,7 +12,7 @@ import me.ranol.effectprefix.api.effects.EffectManager;
 import me.ranol.effectprefix.api.effects.PrefixEffect;
 import me.ranol.effectprefix.api.effects.RequirePlugins;
 import me.ranol.effectprefix.api.effects.ResultTo;
-import me.ranol.effectprefix.events.PrefixDeselectEvent;
+import me.ranol.effectprefix.events.PrefixChangeEvent;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -50,16 +50,27 @@ public class EffHoloVisible extends PrefixEffect {
 	@EventHandler(ignoreCancelled = false, priority = EventPriority.HIGHEST)
 	public void onMove(PlayerMoveEvent e) {
 		if (e.getFrom().distance(e.getTo()) == 0.0D || e.isAsynchronous()
-				|| !(protocol || holographic) || !isSelected(e.getPlayer()))
+				|| !holographic || !isSelected(e.getPlayer()))
 			return;
 		refresh(e.getPlayer());
 	}
 
 	@EventHandler
-	public void onDeselect(PrefixDeselectEvent e) {
-		if (e.getDeselectPrefix().equals(getTarget())) {
-			holo.get(e.getPlayer().getUniqueId()).dispose();
-			holo.remove(e.getPlayer().getUniqueId());
+	public void onDeselect(PrefixChangeEvent e) {
+		switch (e.getType()) {
+		case DESELECT:
+			if (e.getChangedPrefix().equals(getTarget())) {
+				holo.get(e.getPlayer().getUniqueId()).dispose();
+				holo.remove(e.getPlayer().getUniqueId());
+			}
+			break;
+		case SELECT:
+			if (e.isAsynchronous() || !holographic
+					|| !e.getChangedPrefix().equals(getTarget()))
+				refresh(e.getPlayer());
+			break;
+		default:
+			return;
 		}
 	}
 

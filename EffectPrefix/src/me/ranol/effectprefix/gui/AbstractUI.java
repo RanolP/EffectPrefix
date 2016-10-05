@@ -16,11 +16,12 @@ import org.bukkit.inventory.Inventory;
 
 public abstract class AbstractUI implements Listener {
 	private boolean safeClose = false;
-	private List<String> openers = new ArrayList<>();
+	protected List<String> openers = new ArrayList<>();
+	private List<EffectCallable> callables = new ArrayList<>();
 	private static HashMap<Class<?>, AbstractUI> instanceMap = new HashMap<>();
 
 	@SuppressWarnings("unchecked")
-	public static <T extends AbstractUI> T getInstance(Class<T> clazz) {
+	public final static <T extends AbstractUI> T getInstance(Class<T> clazz) {
 		if (!instanceMap.containsKey(clazz)) {
 			try {
 				instanceMap.put(clazz, clazz.newInstance());
@@ -30,23 +31,23 @@ public abstract class AbstractUI implements Listener {
 		return (T) instanceMap.get(clazz);
 	}
 
-	public void dispose() {
+	public final void dispose() {
 		openers.clear();
 		openers = null;
 	}
 
-	public static void disposeAll() {
+	public final static void disposeAll() {
 		for (AbstractUI ui : instanceMap.values())
 			ui.dispose();
 		instanceMap.clear();
 		instanceMap = null;
 	}
 
-	protected void setSafeClose(boolean newVal) {
+	protected final void setSafeClose(boolean newVal) {
 		safeClose = newVal;
 	}
 
-	public boolean isSafeClose() {
+	public final boolean isSafeClose() {
 		return safeClose;
 	}
 
@@ -56,6 +57,19 @@ public abstract class AbstractUI implements Listener {
 
 	private final void initialize() {
 		EffectPrefix.getInstance().registerEvents(this);
+		addEffectModify((e) -> isJoined((Player) e.getWhoClicked()));
+	}
+
+	public final void addEffectModify(EffectCallable callable) {
+		callables.add(callable);
+	}
+
+	public final void clearEffectModify() {
+		callables.clear();
+	}
+
+	public final void removeEffectModify(EffectCallable key) {
+		callables.remove(key);
 	}
 
 	/**
@@ -94,9 +108,8 @@ public abstract class AbstractUI implements Listener {
 	public final void onInventoryClose(final InventoryCloseEvent e) {
 		if (safeClose && isJoined((Player) e.getPlayer())) {
 			Bukkit.getScheduler().scheduleSyncDelayedTask(
-					EffectPrefix.getInstance(), () -> {
-						e.getPlayer().openInventory(e.getInventory());
-					}, 1L);
+					EffectPrefix.getInstance(),
+					() -> e.getPlayer().openInventory(e.getInventory()), 1L);
 			return;
 		}
 		close((Player) e.getPlayer());
@@ -104,8 +117,11 @@ public abstract class AbstractUI implements Listener {
 
 	@EventHandler
 	public final void onInventoryClick(InventoryClickEvent e) {
-		if (isJoined((Player) e.getWhoClicked()))
-			effect(e);
+		for (EffectCallable call : callables) {
+			if (!call.effected(e))
+				return;
+		}
+		effect(e);
 	}
 
 	public abstract void effect(InventoryClickEvent e);
@@ -117,4 +133,9 @@ public abstract class AbstractUI implements Listener {
 	public abstract void visible(Player p);
 
 	protected abstract void setting(Inventory i);
+
+	@FunctionalInterface
+	protected interface EffectCallable {
+		public boolean effected(InventoryClickEvent e);
+	}
 }

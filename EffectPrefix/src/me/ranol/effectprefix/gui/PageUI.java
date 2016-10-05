@@ -11,9 +11,26 @@ import org.bukkit.inventory.ItemStack;
 
 public abstract class PageUI<T> extends AbstractUI {
 	private int start, end;
-	HashMap<UUID, Integer> page = new HashMap<>();
-	List<T> list = new ArrayList<T>();
-	int maxPage;
+	private HashMap<UUID, Integer> page = new HashMap<>();
+	protected List<T> list = new ArrayList<T>();
+	private List<ItemModify> modify = new ArrayList<ItemModify>();
+	private int maxPage;
+
+	public T getByIndex(int index, Player p) {
+		int i = index + (getPage(p) - 1) * (end - start);
+		if (list.size() - 1 < i)
+			return null;
+		return list.get(i);
+	}
+
+	public int addModify(ItemModify modify) {
+		this.modify.add(modify);
+		return this.modify.size();
+	}
+
+	public void removeModify(ItemModify modify) {
+		this.modify.remove(modify);
+	}
 
 	protected abstract ItemStack getStack(T obj, Player p);
 
@@ -27,8 +44,9 @@ public abstract class PageUI<T> extends AbstractUI {
 		for (int j = (getPage(p) - 1) * (end - start); j < list.size() + end; j++) {
 			if (index > end)
 				break;
-			i.setItem(index++,
-					getStack(list.size() > j ? list.get(j) : null, p));
+			ItemStack temp = getStack(list.size() > j ? list.get(j) : null, p);
+			modify.forEach(modify -> modify.modify(p, temp));
+			i.setItem(index++, temp);
 		}
 	}
 
@@ -67,6 +85,11 @@ public abstract class PageUI<T> extends AbstractUI {
 
 	public void backPage(Player p) {
 		setPage(p, getPage(p) - 1);
+	}
+
+	@FunctionalInterface
+	public interface ItemModify {
+		public void modify(Player player, ItemStack stack);
 	}
 
 }

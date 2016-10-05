@@ -2,8 +2,7 @@ package me.ranol.effectprefix.effects;
 
 import me.ranol.effectprefix.api.Argument;
 import me.ranol.effectprefix.api.effects.PrefixEffect;
-import me.ranol.effectprefix.events.PrefixDeselectEvent;
-import me.ranol.effectprefix.events.PrefixSelectEvent;
+import me.ranol.effectprefix.events.PrefixChangeEvent;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Damageable;
@@ -35,18 +34,22 @@ public class EffAddHealth extends PrefixEffect {
 	}
 
 	@EventHandler
-	public void onSelect(PrefixSelectEvent e) {
-		if (e.getSelectPrefix().equals(getTarget())) {
-			Damageable dam = e.getPlayer();
-			dam.setMaxHealth(dam.getMaxHealth() + addHealth);
-		}
-	}
-
-	@EventHandler
-	public void onDeselect(PrefixDeselectEvent e) {
-		if (e.getDeselectPrefix().equals(getTarget())) {
-			Damageable dam = e.getPlayer();
-			dam.setMaxHealth(dam.getMaxHealth() - addHealth);
+	public void onSelect(PrefixChangeEvent e) {
+		switch (e.getType()) {
+		case SELECT:
+			if (e.getChangedPrefix().equals(getTarget())) {
+				Damageable dam = e.getPlayer();
+				dam.setMaxHealth(dam.getMaxHealth() + addHealth);
+			}
+			break;
+		case DESELECT:
+			if (e.getChangedPrefix().equals(getTarget())) {
+				Damageable dam = e.getPlayer();
+				dam.setMaxHealth(dam.getMaxHealth() - addHealth);
+			}
+			break;
+		default:
+			return;
 		}
 	}
 }
