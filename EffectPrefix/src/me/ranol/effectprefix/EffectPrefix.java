@@ -32,8 +32,8 @@ public class EffectPrefix extends JavaPlugin {
 				() -> Bukkit.getPluginManager().callEvent(
 						new ServerLoadCompleteEvent()), 1L);
 	}
-	
-	public static RYamlConfiguration config(){
+
+	public static RYamlConfiguration config() {
 		return config;
 	}
 

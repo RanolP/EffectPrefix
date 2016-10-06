@@ -1,7 +1,6 @@
 package me.ranol.effectprefix.gui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import me.ranol.effectprefix.EffectPrefix;
@@ -18,25 +17,23 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 public class UIPrefixUser extends PageUI<Prefix> implements
-		ObserverTarget<List<Prefix>>, Listener {
+		ObserverTarget<List<Prefix>> {
 	private static final ItemStack prevent = ItemUtil.createStack(
 			Material.THIN_GLASS, "&c[ &4&l잠긴 &e슬롯 &c]",
 			"&6사용이 &4&l불가능&6한 &e슬롯&6입니다!");
 	private static final ItemStack canuse = ItemUtil.createStack(
 			Material.BOOK_AND_QUILL, "&c[ &a&l장착 가능 &e슬롯 &c]",
 			"&6사용이 &a&l가능&6한 &e슬롯&6입니다!");
-	private static final int[] selectableSlots = { 36, 37, 38, 39, 40, 41, 42,
-			43, 44 };
+	private static final int selectableSlots = 36;
+	private static final int size = 9;
 	private static final long serialVersionUID = -7502573757932360890L;
 
 	{
-		EffectPrefix.getInstance().registerEvents(this);
 		PrefixManager.getInstance().attach(this);
 		setStart(0);
 		setEnd(26);
@@ -73,16 +70,17 @@ public class UIPrefixUser extends PageUI<Prefix> implements
 		}
 		if (e.getRawSlot() >= getStart() && e.getRawSlot() <= getEnd()) {
 			if (e.getCurrentItem().getType() == Material.BEDROCK
-					|| e.getCursor().getType() == Material.BEDROCK)
+					|| e.getCursor().getType() == Material.BEDROCK) {
 				return;
+			}
 			Prefix prefix = getByIndex(e.getRawSlot(), p);
-			if (prefix == null)
+			if (prefix == null) {
 				return;
+			}
 			if (e.getClick().isShiftClick()) {
 				UIPrefixBookCreation ui = AbstractUI
 						.getInstance(UIPrefixBookCreation.class);
 				ui.setPrefix(prefix);
-
 				Bukkit.getScheduler().scheduleSyncDelayedTask(
 						EffectPrefix.getInstance(), () -> {
 							safeClose(p);
@@ -106,20 +104,28 @@ public class UIPrefixUser extends PageUI<Prefix> implements
 			prevents(i);
 			selects(p, i);
 			selected(p, i);
-		} else if (Arrays.asList(selectableSlots).contains(e.getRawSlot())) {
+		} else if (e.getRawSlot() >= selectableSlots
+				&& e.getRawSlot() <= selectableSlots + size) {
 			List<Prefix> selected = PrefixManager.getInstance()
 					.getSelectedPrefix(p);
 			int s = e.getRawSlot() - 36;
+			int cs = selected.size();
+			if (cs >= size)
+				cs = size;
+			if (e.getCurrentItem().getType() == Material.BOOK_AND_QUILL
+					|| e.getCursor().getType() == Material.BOOK_AND_QUILL)
+				return;
 			if (s <= selected.size()) {
 				if (e.getClick().isLeftClick()) {
-					if (selectableSlots[0] == e.getRawSlot())
+					if (selectableSlots == e.getRawSlot())
 						return;
 					PrefixManager.getInstance().deselect(p, selected.get(s));
 					PrefixManager.getInstance().select(p, selected.get(s),
 							s - 1);
 				} else if (e.getClick().isRightClick()) {
-					if (selectableSlots[selectableSlots.length - 1] == e
-							.getRawSlot())
+					if (selectableSlots + cs == e.getRawSlot())
+						return;
+					if (selected.size() == 1)
 						return;
 					PrefixManager.getInstance().deselect(p, selected.get(s));
 					PrefixManager.getInstance().select(p, selected.get(s),
@@ -143,14 +149,14 @@ public class UIPrefixUser extends PageUI<Prefix> implements
 	}
 
 	protected void prevents(Inventory i) {
-		for (int j : selectableSlots) {
+		for (int j = selectableSlots; j < selectableSlots + size; j++) {
 			i.setItem(j, prevent);
 		}
 	}
 
 	protected void selects(Player p, Inventory i) {
 		int count = PrefixManager.getInstance().getCanSelectPrefixCount(p);
-		for (int j : selectableSlots) {
+		for (int j = selectableSlots; j < selectableSlots + size; j++) {
 			if (count <= 0)
 				break;
 			i.setItem(j, canuse);
@@ -161,7 +167,7 @@ public class UIPrefixUser extends PageUI<Prefix> implements
 	protected void selected(Player p, Inventory i) {
 		List<Prefix> list = PrefixManager.getInstance().getSelectedPrefix(p);
 		int count = 0;
-		for (int j : selectableSlots) {
+		for (int j = selectableSlots; j < selectableSlots + size; j++) {
 			if (count >= list.size())
 				break;
 			ItemStack temp = getStack(list.get(count), p);
@@ -228,8 +234,24 @@ public class UIPrefixUser extends PageUI<Prefix> implements
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPrefixGive(PrefixChangeEvent e) {
-		if (!e.isCancelled() && isJoined(e.getPlayer()))
-			calculation(e.getPlayer().getOpenInventory().getTopInventory(),
-					e.getPlayer());
+		switch (e.getType()) {
+		case GIVED:
+		case SELECT:
+		case DESELECT:
+			if (!e.isCancelled() && isJoined(e.getPlayer()))
+				Bukkit.getScheduler().scheduleSyncDelayedTask(
+						EffectPrefix.getInstance(),
+						() -> {
+							Player p = e.getPlayer();
+							Inventory i = e.getPlayer().getOpenInventory()
+									.getTopInventory();
+							calculation(i, p);
+							selects(p, i);
+							selected(p, i);
+						});
+			break;
+		default:
+			break;
+		}
 	}
 }

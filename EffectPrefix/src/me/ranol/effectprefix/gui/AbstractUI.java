@@ -55,7 +55,7 @@ public abstract class AbstractUI implements Listener {
 		initialize();
 	}
 
-	private final void initialize() {
+	private void initialize() {
 		EffectPrefix.getInstance().registerEvents(this);
 		addEffectModify((e) -> isJoined((Player) e.getWhoClicked()));
 	}
@@ -117,6 +117,8 @@ public abstract class AbstractUI implements Listener {
 
 	@EventHandler
 	public final void onInventoryClick(InventoryClickEvent e) {
+		if (e.getClickedInventory() == null)
+			return;
 		for (EffectCallable call : callables) {
 			if (!call.effected(e))
 				return;

@@ -4,12 +4,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.ranol.effectprefix.api.effects.PrefixEffect;
+import me.ranol.effectprefix.utils.ItemUtil;
+
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
-import me.ranol.effectprefix.api.effects.PrefixEffect;
-import me.ranol.effectprefix.utils.ItemUtil;
 
 public class Prefix implements Serializable {
 	private static final long serialVersionUID = -538246772988031160L;

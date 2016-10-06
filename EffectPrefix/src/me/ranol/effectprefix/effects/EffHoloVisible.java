@@ -57,16 +57,19 @@ public class EffHoloVisible extends PrefixEffect {
 
 	@EventHandler
 	public void onDeselect(PrefixChangeEvent e) {
+		if (!holographic)
+			return;
 		switch (e.getType()) {
 		case DESELECT:
 			if (e.getChangedPrefix().equals(getTarget())) {
-				holo.get(e.getPlayer().getUniqueId()).dispose();
-				holo.remove(e.getPlayer().getUniqueId());
+				if (holo.containsKey(e.getPlayer().getUniqueId())) {
+					holo.get(e.getPlayer().getUniqueId()).dispose();
+					holo.remove(e.getPlayer().getUniqueId());
+				}
 			}
 			break;
 		case SELECT:
-			if (e.isAsynchronous() || !holographic
-					|| !e.getChangedPrefix().equals(getTarget()))
+			if (e.getChangedPrefix().equals(getTarget()))
 				refresh(e.getPlayer());
 			break;
 		default:
@@ -118,7 +121,8 @@ public class EffHoloVisible extends PrefixEffect {
 		}
 
 		public void dispose() {
-			hologram.delete();
+			if (hologram != null)
+				hologram.delete();
 		}
 	}
 
