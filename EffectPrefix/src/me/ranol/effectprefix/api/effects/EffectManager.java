@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import me.ranol.effectprefix.EffectPrefix;
 import me.ranol.effectprefix.api.Argument;
@@ -174,11 +175,11 @@ public class EffectManager extends Observer<List<PrefixEffect>> {
 	}
 
 	public static PrefixEffect createEffect(String name, String arguments) {
-		for (PrefixEffect effect : classes) {
-			if (effect.getCommand().equals(name)) {
-				return replaceVars(effect.getClass(), parseVars(arguments));
-			}
-		}
+		List<PrefixEffect> el = classes.stream()
+				.filter(eff -> eff.getCommand().equals(name))
+				.collect(Collectors.toList());
+		if (el.size() > 0)
+			return replaceVars(el.get(0).getClass(), parseVars(arguments));
 		return null;
 	}
 
@@ -259,28 +260,24 @@ public class EffectManager extends Observer<List<PrefixEffect>> {
 
 	public static <T extends PrefixEffect> boolean hasOption(Class<T> clazz,
 			Prefix prefix) {
-		for (PrefixEffect eff : prefix.getEffects()) {
-			if (eff.getClass().getSimpleName().equals(clazz.getSimpleName()))
-				return true;
-		}
-		return false;
+		return prefix.getEffects().stream()
+				.filter(eff -> eff.getClass().isAssignableFrom(clazz))
+				.collect(Collectors.toList()).size() > 0;
 	}
 
 	public static List<Prefix> hasOptionSet(
 			Class<? extends PrefixEffect> clazz, List<Prefix> prefix) {
-		List<Prefix> list = new ArrayList<>();
-		prefix.stream().filter((p) -> hasOption(clazz, p)).map(p -> p)
-				.forEach(p -> list.add(p));
+		List<Prefix> list = prefix.stream().filter((p) -> hasOption(clazz, p))
+				.collect(Collectors.toList());
 		return list;
 	}
 
 	public static <T extends PrefixEffect> int getOptionIndex(Class<T> clazz,
 			Prefix prefix) {
-		for (int i = 0; i < prefix.getEffects().size(); i++) {
-			if (prefix.getEffects().get(i).getClass().getSimpleName()
-					.equals(clazz.getSimpleName()))
-				return i;
-		}
-		return -1;
+		List<PrefixEffect> elist = prefix.getEffects().stream()
+				.filter(eff -> eff.getClass().isAssignableFrom(clazz))
+				.collect(Collectors.toList());
+		return elist.size() == 0 ? -1 : prefix.getEffects().indexOf(
+				elist.get(0));
 	}
 }

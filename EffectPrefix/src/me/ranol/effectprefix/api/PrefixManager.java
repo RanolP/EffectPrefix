@@ -55,6 +55,19 @@ public class PrefixManager extends Observer<List<Prefix>> implements
 		return true;
 	}
 
+	public boolean remove(Prefix prefix) {
+		boolean result = true;
+		for (Prefix pref : this.prefix) {
+			if (pref.getPrefixName().equals(prefix.getPrefixName()))
+				result = false;
+		}
+		if (result)
+			return false;
+		this.prefix.remove(prefix);
+		updateAll(this.prefix);
+		return true;
+	}
+
 	public void replace(Prefix prefix) {
 		for (Prefix pref : this.prefix) {
 			if (pref.getPrefixName().equals(prefix.getPrefixName())) {
